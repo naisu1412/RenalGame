@@ -5,32 +5,30 @@ var game = new Phaser.Game(
         update: update
     }
 );
-var paddle1, ball_launched, ball_velocity, germ;
+var paddle1, ball_launched, ball_velocity, germ, background;
 
 function preload() {
     game.load.image("paddle", "assets/player.png");
     game.load.image('ball', "assets/ball.png");
     game.load.image('germ', "assets/germ1.png");
+    game.load.image('background', 'assets/background.png')
 
 }
 
 function create() {
+    background = create_background(0, 0);
     ball_launched = false;
     ball_velocity = 650;
-    paddle1 = create_paddle(game.world.centerX, game.world.height - 50);
+    paddle1 = create_paddle(game.world.centerX, game.world.height - 250);
     ball = create_ball(game.world.centerX, game.world.centerY);
-
-
+    multiple_germs();
 
 
     console.log(paddle1);
 
 
-    resize(paddle1, 400, 50);
     resize(ball, 50, 50);
-    resize(germ, 80, 80);
-    resize(germ1, 80, 80);
-    //  game.input.onDown.add(launch_ball, this);
+
     launch_ball();
 
 }
@@ -52,6 +50,8 @@ function create_paddle(x, y) {
     game.physics.arcade.enable(paddle);
     paddle.body.collideWorldBounds = true;
     paddle.body.immovable = true;
+    resize(paddle, 200, 30);
+
 
     return paddle;
 }
@@ -97,6 +97,14 @@ function launch_ball() {
 
 }
 
+function create_background(x, y) {
+    var background = game.add.sprite(x, y, "background");
+    // background.anchor.setTo(0.5, 0.5);
+    resize(background, 768, 1024);
+
+    return background;
+}
+
 function create_germ(x, y) {
     var germ = game.add.sprite(x, y, "germ");
     germ.anchor.setTo(0.5, 0.5);
@@ -108,13 +116,26 @@ function create_germ(x, y) {
 }
 
 function multiple_germs() {
-    var germs;
-    for (var i = 0; i < 5; i++) {
+    var germs = [];
+    for (var i = 1; i < 6; i++) {
+        for (var j = 1; j < 5; j++) {
+            var germ = create_germ(80 * i, 80 * j);
+            resize(germ, 80, 80);
+            germs.push(germ);
+            console.log("hello there");
+        }
 
     }
+    germs.x = 120;
+    germs.y = 120;
+
+    // console.log(germs.count());
+    //  console.log(germs);
 }
 
 function resize(obj, x, y) {
     obj.width = x;
     obj.height = y;
+
+    return obj;
 }
