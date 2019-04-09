@@ -5,41 +5,109 @@ var game = new Phaser.Game(
         update: update
     }
 );
+
+var startBg, logo, playButton, instruction;
+
 var paddle1, ball_launched, ball_velocity, germ, background;
+
+var multiGerm = [];
+var score = 0;
 
 function preload() {
     game.load.image("paddle", "assets/player.png");
     game.load.image('ball', "assets/ball.png");
     game.load.image('germ', "assets/germ1.png");
-    game.load.image('background', 'assets/background.png')
+    game.load.image('germ2', "assets/germ2.png");
+    game.load.image('background', 'assets/background.png');
+    game.load.image('startBackground', 'assets/StartScreen/bg.png');
+    game.load.image('logo', 'assets/StartScreen/logo.png');
+    game.load.image('playButton', 'assets/StartScreen/play.png');
+    game.load.image('instruction', 'assets/instruction.png');
+
 
 }
 
 function create() {
-    background = create_background(0, 0);
+
+
+    createGame();
+
+
+
+    game.paused = true;
+    startBg = createImg(0, 0, 'startBackground');
+    logo = createImg(80, 300, 'logo');
+    playButton = game.add.button(250, 600, 'playButton', showInstruction, this, 2, 1, 0);
+    resize(startBg, 768, 1024);
+    resize(logo, 600, 300);
+    resize(playButton, 250, 150);
+
+}
+
+function createGame() {
+    background = createImg(0, 0, 'background');
+    resize(background, 768, 1024);
     ball_launched = false;
     ball_velocity = 650;
+    score = 0;
     paddle1 = create_paddle(game.world.centerX, game.world.height - 250);
     ball = create_ball(game.world.centerX, game.world.centerY);
-    multiple_germs();
-
-
-    console.log(paddle1);
-
-
+    multiGerm.push(multiple_germs(230, 150, 5));
+    multiGerm.push(multiple_germs(230 - 40, 150 + 80, 6));
+    multiGerm.push(multiple_germs(230 - 80, 150 + 160, 6));
+    multiGerm.push(multiple_germs(230 - 150, 150 + 240, 6));
     resize(ball, 50, 50);
-
     launch_ball();
 
 }
 
+function showInstruction() {
+    startBg.kill();
+    logo.kill();
+    playButton.kill();
+
+    instruction = game.add.button(80, 80, 'instruction',
+        () => {
+            game.paused = false;
+            instruction.kill();
+        }, this, 2, 1, 0);
+
+
+    resize(instruction, 600, 750);
+
+
+}
+
+
+
 function update() {
+
+
+
     control_paddle(paddle1, game.input.x);
     game.physics.arcade.collide(paddle1, ball); //hitting the paddle1
 
-    game.physics.arcade.collide(ball, germ, () => {
-        console.log("hit");
-    });
+    for (var i = 0; i < multiGerm.length; i++) {
+        for (var j = 0; j < multiGerm[i].length; j++) {
+            game.physics.arcade.collide(multiGerm[i][j], ball, function() {
+                if (multiGerm[i][j].key == "germ2") {
+                    multiGerm[i][j].loadTexture("germ");
+                } else {
+                    multiGerm[i][j].kill();
+                    console.log("scored");
+                    score++;
+
+                }
+
+            });
+        }
+    }
+
+    if (score == 23) {
+
+        resetGame();
+    }
+
 
 }
 
@@ -97,16 +165,15 @@ function launch_ball() {
 
 }
 
-function create_background(x, y) {
-    var background = game.add.sprite(x, y, "background");
-    // background.anchor.setTo(0.5, 0.5);
-    resize(background, 768, 1024);
+function createImg(x, y, name) {
+    var background = game.add.sprite(x, y, name);
+
 
     return background;
 }
 
 function create_germ(x, y) {
-    var germ = game.add.sprite(x, y, "germ");
+    var germ = game.add.sprite(x, y, "germ2");
     germ.anchor.setTo(0.5, 0.5);
     game.physics.arcade.enable(germ);
     germ.body.collideWorldBounds = true;
@@ -115,20 +182,17 @@ function create_germ(x, y) {
     return germ;
 }
 
-function multiple_germs() {
+function multiple_germs(posx, posy, count) {
+
     var germs = [];
-    for (var i = 1; i < 6; i++) {
-        for (var j = 1; j < 5; j++) {
-            var germ = create_germ(80 * i, 80 * j);
-            resize(germ, 80, 80);
-            germs.push(germ);
-            console.log("hello there");
-        }
-
+    for (var j = 1; j < count + 1; j++) {
+        var germ = create_germ(posx + (80 * j), posy);
+        resize(germ, 80, 80);
+        germs.push(germ);
+        console.log("hello there");
     }
-    germs.x = 120;
-    germs.y = 120;
 
+    return germs;
     // console.log(germs.count());
     //  console.log(germs);
 }
@@ -138,4 +202,9 @@ function resize(obj, x, y) {
     obj.height = y;
 
     return obj;
+}
+
+function resetGame() {
+    this.game.state.restart();
+
 }
