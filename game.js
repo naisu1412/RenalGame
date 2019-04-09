@@ -2,16 +2,17 @@ var game = new Phaser.Game(
     768, 1024, Phaser.AUTO, '', {
         preload: preload,
         create: create,
-        update: update
+        update: update,
+        render: render
     }
 );
 
 var startBg, logo, playButton, instruction;
-
 var paddle1, ball_launched, ball_velocity, germ, background;
-
 var multiGerm = [];
 var score = 0;
+var timer = 0;
+var timerSec = 60;
 
 function preload() {
     game.load.image("paddle", "assets/player.png");
@@ -27,14 +28,23 @@ function preload() {
 
 }
 
+function render() {
+    //   game.debug.text('Time: ' + timerSec, 32, 64);
+}
+
+function updateSecond() {
+    timerSec--;
+}
+
 function create() {
 
-
     createGame();
-
-
-
     game.paused = true;
+    timer = game.time.create(false);
+    timer.loop(1000, updateSecond, this);
+    timer.start();
+    timer = 0;
+    timerSec = 60;
     startBg = createImg(0, 0, 'startBackground');
     logo = createImg(80, 300, 'logo');
     playButton = game.add.button(250, 600, 'playButton', showInstruction, this, 2, 1, 0);
@@ -65,7 +75,6 @@ function showInstruction() {
     startBg.kill();
     logo.kill();
     playButton.kill();
-
     instruction = game.add.button(80, 80, 'instruction',
         () => {
             game.paused = false;
@@ -85,6 +94,18 @@ function update() {
 
 
     control_paddle(paddle1, game.input.x);
+
+    if (game.paused == true) {
+        document.getElementById("timer").innerText = "";
+
+    } else {
+        document.getElementById("timer").innerText = "Timer: " + timerSec;
+    }
+
+    if (timerSec < 1) {
+        resetGame();
+    }
+
     game.physics.arcade.collide(paddle1, ball); //hitting the paddle1
 
     for (var i = 0; i < multiGerm.length; i++) {
@@ -189,12 +210,10 @@ function multiple_germs(posx, posy, count) {
         var germ = create_germ(posx + (80 * j), posy);
         resize(germ, 80, 80);
         germs.push(germ);
-        console.log("hello there");
+        // console.log("hello there");
     }
 
     return germs;
-    // console.log(germs.count());
-    //  console.log(germs);
 }
 
 function resize(obj, x, y) {
