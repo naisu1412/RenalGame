@@ -9,10 +9,12 @@ var game = new Phaser.Game(
 
 var startBg, logo, playButton, instruction;
 var paddle1, ball_launched, ball_velocity, germ, background;
+var obstacles, obstacle;
 var multiGerm = [];
 var score = 0;
 var timer = 0;
 var timerSec = 60;
+var info;
 
 function preload() {
     game.load.image("paddle", "assets/player.png");
@@ -24,6 +26,12 @@ function preload() {
     game.load.image('logo', 'assets/StartScreen/logo.png');
     game.load.image('playButton', 'assets/StartScreen/play.png');
     game.load.image('instruction', 'assets/instruction.png');
+    game.load.image('info1', 'assets/infos/info1.png');
+    game.load.image('info2', 'assets/infos/info2.png');
+    game.load.image('info3', 'assets/infos/info3.png');
+    game.load.image('info4', 'assets/infos/info4.png');
+    game.load.image('info5', 'assets/infos/info5.png');
+    game.load.image('info6', 'assets/infos/info6.png');
 
 
 }
@@ -38,19 +46,28 @@ function updateSecond() {
 
 function create() {
 
-    createGame();
-    game.paused = true;
-    timer = game.time.create(false);
-    timer.loop(1000, updateSecond, this);
-    timer.start();
-    timer = 0;
-    timerSec = 60;
-    startBg = createImg(0, 0, 'startBackground');
-    logo = createImg(80, 300, 'logo');
-    playButton = game.add.button(250, 600, 'playButton', showInstruction, this, 2, 1, 0);
-    resize(startBg, 768, 1024);
-    resize(logo, 600, 300);
-    resize(playButton, 250, 150);
+    createGame(); //actual gameplay
+    // game.paused = true;
+    // timer = game.time.create(false);
+    // timer.loop(1000, updateSecond, this);
+    // timer.start();
+    // timer = 0;
+    // timerSec = 60;
+    // startBg = createImg(0, 0, 'startBackground');
+    // logo = createImg(80, 300, 'logo');
+    // playButton = game.add.button(250, 600, 'playButton', showInstruction, this, 2, 1, 0);
+    // resize(startBg, 768, 1024);
+    // resize(logo, 600, 300);
+    // resize(playButton, 250, 150);
+    create_infos(-30, 200, 'info1');
+
+
+}
+
+function create_infos(x, y, info) {
+
+    info = game.add.sprite(x, y, info);
+    resize(info, 800, 650);
 
 }
 
@@ -66,10 +83,116 @@ function createGame() {
     multiGerm.push(multiple_germs(230 - 40, 150 + 80, 6));
     multiGerm.push(multiple_germs(230 - 80, 150 + 160, 6));
     multiGerm.push(multiple_germs(230 - 150, 150 + 240, 6));
+    createObstacles();
     resize(ball, 50, 50);
     launch_ball();
 
 }
+
+function createObstacles() {
+    obstacles = [];
+    obstacle = create_germ(0, 0);
+    obstacles.push(obstacle);
+
+
+
+    obstacle1 = create_germ(0, 220);
+    resize(obstacle1, 120, 120);
+    obstacles.push(obstacle1);
+
+    obstacle1 = create_germ(100, 180);
+    resize(obstacle1, 100, 100);
+    obstacles.push(obstacle1);
+
+
+    obstacle2 = create_germ(0, 320);
+    resize(obstacle2, 100, 100);
+    obstacles.push(obstacle2);
+
+    obstacle3 = create_germ(0, 600);
+    resize(obstacle3, 50, 600);
+    obstacles.push(obstacle3);
+
+    obstacle4 = create_germ(0, 900);
+    resize(obstacle4, 200, 200);
+    obstacles.push(obstacle4);
+
+    obstacle4 = create_germ(250, 1000);
+    resize(obstacle4, 120, 120);
+    obstacles.push(obstacle4);
+
+    obstacle4 = create_germ(500, 1000);
+    resize(obstacle4, 500, 50);
+    obstacles.push(obstacle4);
+
+    obstacle4 = create_germ(1000, 1000);
+    resize(obstacle4, 150, 150);
+    obstacles.push(obstacle4);
+
+    obstacle5 = create_germ(1000, 850);
+    resize(obstacle5, 100, 100);
+    obstacles.push(obstacle5);
+
+    obstacle6 = create_germ(1000, 750);
+    resize(obstacle6, 180, 180);
+    obstacles.push(obstacle6);
+
+    obstacle7 = create_germ(1000, 600);
+    resize(obstacle7, 180, 180);
+    obstacles.push(obstacle7);
+
+    obstacle7 = create_germ(1000, 650);
+    resize(obstacle7, 180, 180);
+    obstacles.push(obstacle7);
+
+    obstacle8 = create_germ(1000, 500);
+    resize(obstacle8, 180, 180);
+    obstacles.push(obstacle8);
+
+    obstacle9 = create_germ(1000, 400);
+    resize(obstacle9, 80, 80);
+    obstacles.push(obstacle9);
+
+    obstacle10 = create_germ(1000, 250);
+    resize(obstacle10, 30, 300);
+    obstacles.push(obstacle10);
+
+    obstacle11 = create_germ(1000, 0);
+    resize(obstacle11, 100, 100);
+    obstacles.push(obstacle11);
+
+    obstacle11 = create_germ(1000, 100);
+    resize(obstacle11, 100, 100);
+    obstacles.push(obstacle11);
+
+    obstacle11 = create_germ(650, 0);
+    resize(obstacle11, 100, 100);
+    obstacles.push(obstacle11);
+
+    obstacle11 = create_germ(200, 0);
+    resize(obstacle11, 130, 130);
+    obstacles.push(obstacle11);
+
+    obstacle11 = create_germ(250, 0);
+    resize(obstacle11, 100, 100);
+    obstacles.push(obstacle11);
+
+    obstacle11 = create_germ(0, 780);
+    resize(obstacle11, 100, 100);
+    obstacles.push(obstacle11);
+
+    obstacle11 = create_germ(1000, 0);
+    resize(obstacle11, 500, 50);
+    obstacles.push(obstacle11);
+
+
+
+    for (var i = 0; i < obstacles.length; i++) {
+        obstacles[i].alpha = 0;
+    }
+
+}
+
 
 function showInstruction() {
     startBg.kill();
@@ -92,8 +215,10 @@ function showInstruction() {
 function update() {
 
 
+    if (game.input.x < 550 && game.input.x > 220) {
+        control_paddle(paddle1, game.input.x);
 
-    control_paddle(paddle1, game.input.x);
+    }
 
     if (game.paused == true) {
         document.getElementById("timer").innerText = "";
@@ -123,6 +248,13 @@ function update() {
             });
         }
     }
+
+    for (var i = 0; i < obstacles.length; i++) {
+        game.physics.arcade.collide(obstacles[i], ball, () => {});
+
+    }
+
+
 
     if (score == 23) {
 
@@ -154,6 +286,7 @@ function control_paddle(paddle, x) {
     } else if (paddle.x > game.world.width - paddle.width / 2) {
         paddle.x = game.world.width - paddle.width / 2;
     }
+
 
 
 }
