@@ -9,12 +9,14 @@ var game = new Phaser.Game(
 
 var startBg, logo, playButton, instruction;
 var paddle1, ball_launched, ball_velocity, germ, background;
+var infoMessage;
 var obstacles, obstacle;
 var multiGerm = [];
 var score = 0;
 var timer = 0;
 var timerSec = 60;
 var info;
+var showInfo = false;
 
 function preload() {
     game.load.image("paddle", "assets/player.png");
@@ -41,25 +43,26 @@ function render() {
 }
 
 function updateSecond() {
-    timerSec--;
+    if(showInfo != true){
+        timerSec--;
+    }
 }
 
 function create() {
 
     createGame(); //actual gameplay
-    // game.paused = true;
-    // timer = game.time.create(false);
-    // timer.loop(1000, updateSecond, this);
-    // timer.start();
-    // timer = 0;
-    // timerSec = 60;
-    // startBg = createImg(0, 0, 'startBackground');
-    // logo = createImg(80, 300, 'logo');
-    // playButton = game.add.button(250, 600, 'playButton', showInstruction, this, 2, 1, 0);
-    // resize(startBg, 768, 1024);
-    // resize(logo, 600, 300);
-    // resize(playButton, 250, 150);
-    create_infos(-30, 200, 'info1');
+    game.paused = true;
+    timer = game.time.create(false);
+    timer.loop(1000, updateSecond, this);
+    timer.start();
+    timer = 0;
+    timerSec = 60;
+    startBg = createImg(0, 0, 'startBackground');
+    logo = createImg(80, 300, 'logo');
+    playButton = game.add.button(250, 600, 'playButton', showInstruction, this, 2, 1, 0);
+    resize(startBg, 768, 1024);
+    resize(logo, 600, 300);
+    resize(playButton, 250, 150);
 
 
 }
@@ -69,6 +72,7 @@ function create_infos(x, y, info) {
     info = game.add.sprite(x, y, info);
     resize(info, 800, 650);
 
+    return info;
 }
 
 function createGame() {
@@ -81,7 +85,7 @@ function createGame() {
     ball = create_ball(game.world.centerX, game.world.centerY);
     multiGerm.push(multiple_germs(230, 150, 5));
     multiGerm.push(multiple_germs(230 - 40, 150 + 80, 6));
-    multiGerm.push(multiple_germs(230 - 80, 150 + 160, 6));
+    multiGerm.push(multiple_germs(230 - 120, 150 + 160, 7));
     multiGerm.push(multiple_germs(230 - 150, 150 + 240, 6));
     createObstacles();
     resize(ball, 50, 50);
@@ -240,14 +244,47 @@ function update() {
                     multiGerm[i][j].loadTexture("germ");
                 } else {
                     multiGerm[i][j].kill();
-                    console.log("scored");
                     score++;
+                    console.log(score);
+                    if(score%4 == 0){
+                       infoMessage =  create_infos(-30, 200, 'info' + (score/4));
+                       infoMessage.alpha = 1; 
+                       showInfo = true;
+                       ball.x = game.world.centerX;
+                       ball.y = game.world.centerY;
+                       ball.body.velocity.setTo(0, 0);
+                       ball_launched = false;
+                    }
+                   
 
                 }
 
             });
         }
     }
+
+    
+    // console.log(showInfo);
+        game.input.onTap.add(()=> {
+            if(showInfo == true){
+                infoMessage.kill();
+                infoMessage.alpha = 0;
+                launch_ball();
+                showInfo = false;
+                ball.body.velocity.x = -ball_velocity;
+                ball.body.velocity.y = ball_velocity;
+                ball_launched = true;
+
+                if (score == 24) {
+                    resetGame();
+                }
+
+            }
+      
+        } , infoMessage);
+        
+    
+
 
     for (var i = 0; i < obstacles.length; i++) {
         game.physics.arcade.collide(obstacles[i], ball, () => {});
@@ -256,10 +293,7 @@ function update() {
 
 
 
-    if (score == 23) {
-
-        resetGame();
-    }
+   
 
 
 }
