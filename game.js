@@ -17,6 +17,11 @@ var timer = 0;
 var timerSec = 60;
 var info;
 var showInfo = false;
+var liveCount = 3;
+var deadStacles = [];
+var deadStacle1, deadStacle2, deadStacle3;
+var lives = [];
+var gameOverInfo;
 
 function preload() {
     game.load.image("paddle", "assets/player.png");
@@ -34,6 +39,7 @@ function preload() {
     game.load.image('info4', 'assets/infos/info4.png');
     game.load.image('info5', 'assets/infos/info5.png');
     game.load.image('info6', 'assets/infos/info6.png');
+    game.load.image('gameOver', 'assets/infos/gameOver.png');
 
 
 }
@@ -43,7 +49,8 @@ function render() {
 }
 
 function updateSecond() {
-    if(showInfo != true){
+    
+    if(showInfo != true && liveCount != 0){
         timerSec--;
     }
 }
@@ -63,8 +70,9 @@ function create() {
     resize(startBg, 768, 1024);
     resize(logo, 600, 300);
     resize(playButton, 250, 150);
+    liveCount = 3;
 
-
+   
 }
 
 function create_infos(x, y, info) {
@@ -88,8 +96,23 @@ function createGame() {
     multiGerm.push(multiple_germs(230 - 120, 150 + 160, 7));
     multiGerm.push(multiple_germs(230 - 150, 150 + 240, 6));
     createObstacles();
-    resize(ball, 50, 50);
-    launch_ball();
+    resize(ball, 80, 50);
+
+        life1 = createImg(700 + (0 *30),5,'ball');
+        resize(life1,50,30);
+        life1.angle = 90;
+
+        life2 = createImg(700 + (1 *30),5,'ball');
+        resize(life2,50,30);
+        life2.angle = 90;
+
+        life3 = createImg(700 + (2 *30),5,'ball');
+        resize(life3,50,30);
+        life3.angle = 90;
+
+        launch_ball();
+   
+
 
 }
 
@@ -121,17 +144,22 @@ function createObstacles() {
     resize(obstacle4, 200, 200);
     obstacles.push(obstacle4);
 
-    obstacle4 = create_germ(250, 1000);
-    resize(obstacle4, 120, 120);
-    obstacles.push(obstacle4);
+    deadStacle1 = create_germ(250, 1000);
+    resize(deadStacle1, 120, 120);
+    //obstacles.push(deadStacle1);
+    deadStacles.push(deadStacle1);
 
-    obstacle4 = create_germ(500, 1000);
-    resize(obstacle4, 500, 50);
-    obstacles.push(obstacle4);
+    deadStacle2 = create_germ(500, 1000);
+    resize(deadStacle2, 500, 50);
+    //obstacles.push(deadStacle2);
+    deadStacles.push(deadStacle2);
 
-    obstacle4 = create_germ(1000, 1000);
-    resize(obstacle4, 150, 150);
-    obstacles.push(obstacle4);
+
+    deadStacle3 = create_germ(1000, 1000);
+    resize(deadStacle3, 150, 150);
+    //obstacles.push(deadStacle3);
+    deadStacles.push(deadStacle3);
+
 
     obstacle5 = create_germ(1000, 850);
     resize(obstacle5, 100, 100);
@@ -195,6 +223,10 @@ function createObstacles() {
         obstacles[i].alpha = 0;
     }
 
+    for (var i = 0; i < deadStacles.length; i++) {
+        deadStacles[i].alpha = 0;
+    }
+
 }
 
 
@@ -231,9 +263,9 @@ function update() {
         document.getElementById("timer").innerText = "Timer: " + timerSec;
     }
 
-    if (timerSec < 1) {
-        resetGame();
-    }
+    // if (timerSec < 1) {
+    //     resetGame();
+    // }
 
     game.physics.arcade.collide(paddle1, ball); //hitting the paddle1
 
@@ -262,6 +294,12 @@ function update() {
             });
         }
     }
+//    console.log(deadStacles);
+
+    
+
+
+
 
     
     // console.log(showInfo);
@@ -282,13 +320,45 @@ function update() {
             }
       
         } , infoMessage);
-        
+
+        if(liveCount == 0){
+
+            game.input.onTap.add(() => {
+                resetGame();
+            }, gameOverInfo);
+            
+        }
     
 
 
     for (var i = 0; i < obstacles.length; i++) {
         game.physics.arcade.collide(obstacles[i], ball, () => {});
 
+    }
+
+    for(var i=0; i < deadStacles.length; i++){
+        game.physics.arcade.collide( deadStacles[i],ball, function(){
+           liveCount -=1;
+            if(liveCount == 2){
+                life1.kill();
+           }
+
+           if(liveCount == 1){
+            life2.kill();
+
+        }
+
+        if(liveCount == 0 || timerSec < 1){
+            life3.kill();
+            gameOverInfo = create_infos(100,200,'gameOver');
+            resize(gameOverInfo, 600, 450);
+        
+           gameOverInfo.alpha = 1;
+           ball.body.velocity.setTo(0, 0);
+            //gameOver
+        }
+
+        });
     }
 
 
